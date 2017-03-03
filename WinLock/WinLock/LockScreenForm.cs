@@ -86,7 +86,6 @@ namespace WinLock
 
 		private void LockScreenForm_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			AllowClose = true;
 			if (!AllowClose) e.Cancel = true;
 		}
 		

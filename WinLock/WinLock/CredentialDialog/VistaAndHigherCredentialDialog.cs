@@ -111,7 +111,6 @@ namespace WinLock.CredentialDialog
 			while (lastError == LockScreenError.AuthenticationError)
 			{
 				lastError = GetCredentialsVistaAndUp(dialogTitle, dialogText, Marshal.GetLastWin32Error());
-				lastError = LockScreenError.None;
 			}
 			if (lastError == LockScreenError.UserCancelled) SetLastError(0x00); // hacky way of resetting the error
 			return lastError == LockScreenError.None;

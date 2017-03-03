@@ -123,6 +123,9 @@
   <data name="DialogTitle" xml:space="preserve">
     <value>Unlock Computer</value>
   </data>
+  <data name="ErrorAuthUnimplemented" xml:space="preserve">
+    <value>Authentication has not been implemented yet.</value>
+  </data>
   <data name="UIText" xml:space="preserve">
     <value>Press CTRL+L to unlock</value>
   </data>

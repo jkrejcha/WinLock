@@ -46,5 +46,17 @@ namespace WinLock.Properties {
                 this["LockScreenForeTextColor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ProtectProcess {
+            get {
+                return ((bool)(this["ProtectProcess"]));
+            }
+            set {
+                this["ProtectProcess"] = value;
+            }
+        }
     }
 }

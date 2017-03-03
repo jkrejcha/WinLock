@@ -32,6 +32,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>WinLock.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,6 +55,7 @@
   <ItemGroup>
     <Compile Include="CredentialDialog\BasicCredentialDialog.cs" />
     <Compile Include="CredentialDialog\ICredentialDialog.cs" />
+    <Compile Include="CredentialDialog\LockScreenError.cs" />
     <Compile Include="CredentialDialog\VistaAndHigherCredentialDialog.cs" />
     <Compile Include="CredentialDialog\XPCredentialDialog.cs" />
     <Compile Include="FormCredentialDialog.cs">
@@ -56,7 +64,6 @@
     <Compile Include="FormCredentialDialog.Designer.cs">
       <DependentUpon>FormCredentialDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Locker.cs" />
     <Compile Include="LockScreenForm.cs">
       <SubType>Form</SubType>
     </Compile>

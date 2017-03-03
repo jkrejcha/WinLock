@@ -79,6 +79,15 @@ namespace WinLock.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Authentication has not been implemented yet..
+        /// </summary>
+        internal static string ErrorAuthUnimplemented {
+            get {
+                return ResourceManager.GetString("ErrorAuthUnimplemented", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press CTRL+L to unlock.
         /// </summary>
         internal static string UIText {

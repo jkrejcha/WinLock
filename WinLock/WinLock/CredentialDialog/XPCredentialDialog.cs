@@ -9,7 +9,7 @@ namespace WinLock.CredentialDialog
 {
 	class XPCredentialDialog : ICredentialDialog
 	{
-		public NetworkCredential GetNetworkCredentials(String server, String dialogTitle, String dialogText)
+		public bool VerifyCredentials(string dialogTitle, string dialogText)
 		{
 			throw new NotImplementedException();
 		}

@@ -17,13 +17,16 @@ namespace WinLock
 
 		public delegate void PreAttemptUnlockHandler(object sender, EventArgs e);
 
-		private bool AllowClose = false;
+		private bool AllowClose = Program.Debug; // yea i know
 
 		public LockScreenForm(Size size)
 		{
-			ProcessModule objCurrentModule = Process.GetCurrentProcess().MainModule;
-			objKeyboardProcess = new LowLevelKeyboardProc(captureKey);
-			ptrHook = SetWindowsHookEx(13, objKeyboardProcess, GetModuleHandle(objCurrentModule.ModuleName), 0);
+			if (!Program.Debug)
+			{
+				ProcessModule objCurrentModule = Process.GetCurrentProcess().MainModule;
+				objKeyboardProcess = new LowLevelKeyboardProc(captureKey);
+				ptrHook = SetWindowsHookEx(13, objKeyboardProcess, GetModuleHandle(objCurrentModule.ModuleName), 0);
+			}
 
 			this.BackColor = Properties.Settings.Default.LockScreenBgColor;
 			this.Size = size;
@@ -31,16 +34,10 @@ namespace WinLock
 			this.KeyDown += LockScreenForm_KeyDown;
 			this.StartPosition = FormStartPosition.Manual;
 			this.FormBorderStyle = FormBorderStyle.None;
-			this.Shown += LockScreenForm_Shown;
 			this.Opacity = 0.8;
 			this.Icon = SystemIcons.Application;
 			this.TopMost = true;
 			CreateControls();
-		}
-
-		private void LockScreenForm_Shown(object sender, EventArgs e)
-		{
-			this.Activate();
 		}
 
 		private void LockScreenForm_KeyDown(object sender, KeyEventArgs e)

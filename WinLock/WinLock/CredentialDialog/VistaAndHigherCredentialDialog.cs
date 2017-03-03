@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace WinLock.CredentialDialog
 {
 	class VistaAndHigherCredentialDialog : ICredentialDialog
 	{
 		[DllImport("ole32.dll")]
-		public static extern void CoTaskMemFree(IntPtr ptr);
+		private static extern void CoTaskMemFree(IntPtr ptr);
 
 		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
 		private struct CREDUI_INFO
@@ -23,8 +20,7 @@ namespace WinLock.CredentialDialog
 			public IntPtr hbmBanner;
 		}
 
-
-		[DllImport("credui.dll", CharSet = CharSet.Auto)]
+		[DllImport("credui.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern bool CredUnPackAuthenticationBuffer(int dwFlags,
 																   IntPtr pAuthBuffer,
 																   uint cbAuthBuffer,
@@ -44,42 +40,50 @@ namespace WinLock.CredentialDialog
 																	 out IntPtr refOutAuthBuffer,
 																	 out uint refOutAuthBufferSize,
 																	 ref bool fSave,
-																	 int flags);
-
+																	 WindowsCredentialUIOptions flags);
 		
+		[DllImport("advapi32.dll", SetLastError = true, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		internal static extern bool LogonUser([MarshalAs(UnmanagedType.LPStr)] string pszUserName, [MarshalAs(UnmanagedType.LPStr)] string pszDomain,
+		[MarshalAs(UnmanagedType.LPStr)] string pszPassword, int dwLogonType, int dwLogonProvider, out IntPtr phToken);
 
-		private static void GetCredentialsVistaAndUp(string serverName, string CaptionText, string DisplayedMessage, out NetworkCredential networkCredential)
+		[DllImport("kernel32.dll", SetLastError = true)]
+		private static extern void SetLastError(int errorCode);
+
+
+		private static LockScreenError GetCredentialsVistaAndUp(string captionText, string displayedMessage, int errorCode = 0)
 		{
 			int maxUsername = 100;
 			int maxPassword = 100;
 			int maxDomain = 100;
 			CREDUI_INFO credui = new CREDUI_INFO();
-			/*credui.pszCaptionText = "Please enter the credentails for " + serverName;
-			credui.pszMessageText = "DisplayedMessage";*/
-			credui.pszCaptionText = CaptionText;
-			credui.pszMessageText = DisplayedMessage;
+			credui.hwndParent = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+			credui.pszCaptionText = captionText;
+			credui.pszMessageText = displayedMessage;
 			credui.cbSize = Marshal.SizeOf(credui);
+			IntPtr LsaHandle = IntPtr.Zero;
 			uint authPackage = 0;
 			IntPtr outCredBuffer = new IntPtr();
 			uint outCredSize;
 			bool save = false;
 			int result = CredUIPromptForWindowsCredentials(ref credui,
-														   0,
+														   errorCode,
 														   ref authPackage,
 														   IntPtr.Zero,
 														   0,
 														   out outCredBuffer,
 														   out outCredSize,
 														   ref save,
-														   0x200/* CurrentUser */);
+														   WindowsCredentialUIOptions.EnumerateCurrentUser |
+														   WindowsCredentialUIOptions.EnumerateAdmins);
 
-			var usernameBuf = new StringBuilder(maxUsername);
-			var passwordBuf = new StringBuilder(maxPassword);
-			var domainBuf = new StringBuilder(maxDomain);
+			StringBuilder usernameBuf = new StringBuilder(maxUsername);
+			StringBuilder passwordBuf = new StringBuilder(maxPassword);
+			StringBuilder domainBuf = new StringBuilder(maxDomain);
 
 			if (result == 0)
 			{
-				if (CredUnPackAuthenticationBuffer(0, outCredBuffer, outCredSize, usernameBuf, ref maxUsername,
+				if (CredUnPackAuthenticationBuffer(0x01, outCredBuffer, outCredSize, usernameBuf, ref maxUsername,
 												   domainBuf, ref maxDomain, passwordBuf, ref maxPassword))
 				{
 					//TODO: ms documentation says we should call this but i can't get it to work
@@ -87,24 +91,47 @@ namespace WinLock.CredentialDialog
 
 					//clear the memory allocated by CredUIPromptForWindowsCredentials 
 					CoTaskMemFree(outCredBuffer);
-					networkCredential = new NetworkCredential()
+					NetworkCredential credential = new NetworkCredential()
 					{
-						UserName = usernameBuf.ToString(),
+						UserName = usernameBuf.ToString().Substring(usernameBuf.ToString().IndexOf("\\")),
 						Password = passwordBuf.ToString(),
 						Domain = domainBuf.ToString()
 					};
-					return;
+					IntPtr unused = IntPtr.Zero;
+					return LogonUser(credential.UserName, credential.Domain, credential.Password, 0x03, 0x00, out unused) ? LockScreenError.None : LockScreenError.AuthenticationError;
 				}
+				else { return LockScreenError.AuthenticationError; }
 			}
-
-			networkCredential = null;
+			return LockScreenError.UserCancelled;
 		}
 
-		public NetworkCredential GetNetworkCredentials(String server, String dialogTitle, String dialogText)
+		public bool VerifyCredentials(String dialogTitle, String dialogText)
 		{
-			NetworkCredential credentials;
-			GetCredentialsVistaAndUp(server, dialogTitle, dialogText, out credentials);
-			return credentials;
+			LockScreenError lastError = LockScreenError.AuthenticationError;
+			while (lastError == LockScreenError.AuthenticationError)
+			{
+				lastError = GetCredentialsVistaAndUp(dialogTitle, dialogText, Marshal.GetLastWin32Error());
+				lastError = LockScreenError.None;
+			}
+			if (lastError == LockScreenError.UserCancelled) SetLastError(0x00); // hacky way of resetting the error
+			return lastError == LockScreenError.None;
+		}
+
+		[Flags]
+		public enum WindowsCredentialUIOptions
+		{
+			/// <summary>
+			/// Generic credentials. Cannot be used with <see cref="SecurePrompt"/>.
+			/// </summary>
+			Generic = 0x1,
+			CheckBox = 0x2,
+			AuthPackageOnly = 0x10,
+			InCredOnly = 0x20,
+			EnumerateAdmins = 0x100,
+			EnumerateCurrentUser = 0x200,
+			SecurePrompt = 0x1000,
+			PrePrompting = 0x2000,
+			Pack32WoW = 0x10000000,
 		}
 	}
 }

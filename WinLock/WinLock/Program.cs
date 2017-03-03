@@ -11,7 +11,8 @@ namespace WinLock
 {
 	static class Program
 	{
-		private static LockScreenForm lockScreen;
+		public static bool Debug { get { return System.Diagnostics.Debugger.IsAttached; } }
+		internal static LockScreenForm LockScreen { get; private set; }
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -21,10 +22,14 @@ namespace WinLock
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			lockScreen = new LockScreenForm(Screen.PrimaryScreen.Bounds.Size);
-			lockScreen.PreAttemptUnlock += LockScreen_PreAttemptUnlock;
+			LockScreen = new LockScreenForm(Screen.PrimaryScreen.Bounds.Size);
+			LockScreen.PreAttemptUnlock += LockScreen_PreAttemptUnlock;
+			if (Properties.Settings.Default.ProtectProcess && !Debug)
+			{
+
+			}
 			Taskbar.Hide();
-			lockScreen.ShowDialog();
+			LockScreen.ShowDialog();
 			Taskbar.Show();
         }
 
@@ -48,10 +53,8 @@ namespace WinLock
 			{
 				dialog = new VistaAndHigherCredentialDialog();
 			}
-			NetworkCredential cred = dialog.GetNetworkCredentials(Environment.UserDomainName, Properties.Resources.DialogTitle, Properties.Resources.DialogText);
-			if (cred == null) return;
-			MessageBox.Show(cred.Domain + "\\" + cred.UserName + "\r\n" + cred.Password);
-			//lockScreen.Unlock();
+			if (!dialog.VerifyCredentials(Properties.Resources.DialogTitle, Properties.Resources.DialogText)) return;
+			LockScreen.Unlock();
 		}
 	}
 }

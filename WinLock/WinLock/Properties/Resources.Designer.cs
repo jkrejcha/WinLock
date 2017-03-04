@@ -88,7 +88,7 @@ namespace WinLock.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Press CTRL+L to unlock.
+        ///   Looks up a localized string similar to Press Ctrl+L to unlock.
         /// </summary>
         internal static string UIText {
             get {

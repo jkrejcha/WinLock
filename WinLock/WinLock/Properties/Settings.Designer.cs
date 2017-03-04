@@ -58,5 +58,17 @@ namespace WinLock.Properties {
                 this["ProtectProcess"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Semitransparent {
+            get {
+                return ((bool)(this["Semitransparent"]));
+            }
+            set {
+                this["Semitransparent"] = value;
+            }
+        }
     }
 }

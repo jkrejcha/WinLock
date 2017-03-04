@@ -53,21 +53,21 @@ namespace WinLock.CredentialDialog
 
 		private static LockScreenError GetCredentialsVistaAndUp(string captionText, string displayedMessage, int errorCode = 0)
 		{
-			int maxUsername = 100;
-			int maxPassword = 100;
-			int maxDomain = 100;
+			int maxUsername = 104; // maximum username in Windows
+			int maxPassword = 127; // as of Windows 7
+			int maxDomain = 255; // maximum FQDN
 			CREDUI_INFO credui = new CREDUI_INFO();
-			credui.hwndParent = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+			credui.hwndParent = (new System.Windows.Forms.Form { TopMost = true, StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen }).Handle;
+			//credui.hwndParent = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
 			credui.pszCaptionText = captionText;
 			credui.pszMessageText = displayedMessage;
 			credui.cbSize = Marshal.SizeOf(credui);
-			IntPtr LsaHandle = IntPtr.Zero;
 			uint authPackage = 0;
 			IntPtr outCredBuffer = new IntPtr();
 			uint outCredSize;
 			bool save = false;
 			int result = CredUIPromptForWindowsCredentials(ref credui,
-														   errorCode,
+			                                               errorCode,
 														   ref authPackage,
 														   IntPtr.Zero,
 														   0,
@@ -75,7 +75,7 @@ namespace WinLock.CredentialDialog
 														   out outCredSize,
 														   ref save,
 														   WindowsCredentialUIOptions.EnumerateCurrentUser |
-														   WindowsCredentialUIOptions.EnumerateAdmins);
+			                                               WindowsCredentialUIOptions.EnumerateAdmins);
 
 			StringBuilder usernameBuf = new StringBuilder(maxUsername);
 			StringBuilder passwordBuf = new StringBuilder(maxPassword);
@@ -91,11 +91,12 @@ namespace WinLock.CredentialDialog
 
 					//clear the memory allocated by CredUIPromptForWindowsCredentials 
 					CoTaskMemFree(outCredBuffer);
+					String domain = usernameBuf.ToString().Substring(0, usernameBuf.ToString().IndexOf("\\"));
 					NetworkCredential credential = new NetworkCredential()
 					{
 						UserName = usernameBuf.ToString().Substring(usernameBuf.ToString().IndexOf("\\")),
 						Password = passwordBuf.ToString(),
-						Domain = domainBuf.ToString()
+						Domain = domain
 					};
 					IntPtr unused = IntPtr.Zero;
 					return LogonUser(credential.UserName, credential.Domain, credential.Password, 0x03, 0x00, out unused) ? LockScreenError.None : LockScreenError.AuthenticationError;

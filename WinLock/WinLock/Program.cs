@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using WinLock.CredentialDialog;
 
@@ -24,13 +19,15 @@ namespace WinLock
 			Application.SetCompatibleTextRenderingDefault(false);
 			LockScreen = new LockScreenForm(Screen.PrimaryScreen.Bounds.Size);
 			LockScreen.PreAttemptUnlock += LockScreen_PreAttemptUnlock;
+			System.Threading.Thread secThread = null;
 			if (Properties.Settings.Default.ProtectProcess && !Debug)
 			{
-
+				secThread = ProcessProtection.ProcessProtect.Start();
 			}
 			Taskbar.Hide();
 			LockScreen.ShowDialog();
 			Taskbar.Show();
+			if (secThread != null) secThread.Abort();
         }
 
 		private static void LockScreen_PreAttemptUnlock(object sender, EventArgs e)

@@ -127,7 +127,7 @@
     <value>Authentication has not been implemented yet.</value>
   </data>
   <data name="UIText" xml:space="preserve">
-    <value>Press CTRL+L to unlock</value>
+    <value>Press Ctrl+L to unlock</value>
   </data>
   <data name="UITextLower" xml:space="preserve">
     <value>{0}\{1} is currently logged on</value>

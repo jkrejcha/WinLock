@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinLock
@@ -19,7 +15,7 @@ namespace WinLock
 
 		private bool AllowClose = Program.Debug; // yea i know
 
-		public LockScreenForm(Size size)
+		public LockScreenForm(Size size, bool createControls = true)
 		{
 			if (!Program.Debug)
 			{
@@ -34,13 +30,41 @@ namespace WinLock
 			this.KeyDown += LockScreenForm_KeyDown;
 			this.StartPosition = FormStartPosition.Manual;
 			this.FormBorderStyle = FormBorderStyle.None;
-			this.Opacity = 0.8;
+			this.WindowState = FormWindowState.Maximized;
+			if (Properties.Settings.Default.Semitransparent)
+			{
+				this.Opacity = 0.8;
+			}
+			else
+			{
+				LoadWallpaper();
+			}
 			this.Icon = SystemIcons.Application;
 			this.TopMost = true;
-			CreateControls();
+			if (createControls) CreateControls();
 		}
 
-		private void LockScreenForm_KeyDown(object sender, KeyEventArgs e)
+		[DllImport("user32.dll", CharSet = CharSet.Auto)]
+		public static extern int SystemParametersInfo(UInt32 uAction, int uParam, string lpvParam, int fuWinIni);
+
+		private void LoadWallpaper()
+		{
+            const UInt32 SPI_GETDESKWALLPAPER = 0x73;
+			const int MAX_PATH = 260;
+			string currentWallpaper = new string('\0', MAX_PATH);
+			SystemParametersInfo(SPI_GETDESKWALLPAPER, currentWallpaper.Length, currentWallpaper, 0);
+			try
+			{
+				this.BackgroundImage = Image.FromFile(currentWallpaper.Substring(0, currentWallpaper.IndexOf('\0')));
+				this.BackgroundImageLayout = ImageLayout.Stretch;
+			}
+			catch (Exception)
+			{
+				return;
+			}
+	}
+
+	private void LockScreenForm_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.Control && e.KeyCode == Keys.L)
 			{
@@ -65,6 +89,7 @@ namespace WinLock
 		{
 			int leftValue = 10;
 			Label textLabel = new Label();
+			textLabel.BackColor = Color.Transparent;
 			textLabel.Text = text;
 			textLabel.Font = new Font("Segoe UI", fontSize);
 			textLabel.ForeColor = Properties.Settings.Default.LockScreenForeTextColor;

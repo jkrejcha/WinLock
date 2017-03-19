@@ -8,12 +8,23 @@ namespace WinLock
 {
 	public class LockScreenForm : Form
 	{
+		public event AttemptUnlockHandler AttemptUnlock;
 
-		public event PreAttemptUnlockHandler PreAttemptUnlock;
+		public delegate void AttemptUnlockHandler(object sender, EventArgs e);
 
-		public delegate void PreAttemptUnlockHandler(object sender, EventArgs e);
-
-		private bool AllowClose = Program.Debug; // yea i know
+#if DEBUG
+		/// <summary>
+		/// Controls whether to allow closing of the application via Alt+F4. This
+		/// is only <see langword="true"/> if a debugger is attached.
+		/// </summary>
+		private bool AllowClose = Program.Debug;
+#else
+		/// <summary>
+		/// Controls whether to allow closng of the application via Alt+F4. This
+		/// is default <see langword="false"/>, even if a debugger is attached.
+		/// </summary>
+		private bool AllowClose = false;
+#endif
 
 		public LockScreenForm(Size size, bool createControls = true)
 		{
@@ -31,6 +42,7 @@ namespace WinLock
 			this.StartPosition = FormStartPosition.Manual;
 			this.FormBorderStyle = FormBorderStyle.None;
 			this.WindowState = FormWindowState.Maximized;
+			if (createControls) CreateControls();
 			if (Properties.Settings.Default.Semitransparent)
 			{
 				this.Opacity = 0.8;
@@ -41,7 +53,6 @@ namespace WinLock
 			}
 			this.Icon = SystemIcons.Application;
 			this.TopMost = true;
-			if (createControls) CreateControls();
 		}
 
 		[DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -49,6 +60,7 @@ namespace WinLock
 
 		private void LoadWallpaper()
 		{
+			if (!Properties.Settings.Default.LoadWallpaper) return;
             const UInt32 SPI_GETDESKWALLPAPER = 0x73;
 			const int MAX_PATH = 260;
 			string currentWallpaper = new string('\0', MAX_PATH);
@@ -68,9 +80,9 @@ namespace WinLock
 		{
 			if (e.Control && e.KeyCode == Keys.L)
 			{
-				if (PreAttemptUnlock != null)
+				if (AttemptUnlock != null)
 				{
-					PreAttemptUnlock(sender, e);
+					AttemptUnlock(sender, e);
 				}
 			}
 		}
@@ -114,7 +126,7 @@ namespace WinLock
 			if (!AllowClose) e.Cancel = true;
 		}
 		
-		#region "Disable WinKey, AltTab, CtrlEsc"
+#region "Disable WinKey, AltTab, CtrlEsc"
 		// Structure contain information about low-level keyboard input event 
 		[StructLayout(LayoutKind.Sequential)]
 		private struct KBDLLHOOKSTRUCT

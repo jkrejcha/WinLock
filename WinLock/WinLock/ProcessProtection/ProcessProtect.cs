@@ -9,7 +9,6 @@ namespace WinLock.ProcessProtection
 {
 	public static class ProcessProtect
 	{
-
 		public static IdentityReference Everyone { get { return GetIdentityReference(WellKnownSidType.WorldSid); } }
 
 		public static IdentityReference GetIdentityReference(WellKnownSidType SidType)

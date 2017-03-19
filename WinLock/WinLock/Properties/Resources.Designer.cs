@@ -88,6 +88,15 @@ namespace WinLock.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Logging on to {0}.
+        /// </summary>
+        internal static string UILoggingOntoText {
+            get {
+                return ResourceManager.GetString("UILoggingOntoText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press Ctrl+L to unlock.
         /// </summary>
         internal static string UIText {

@@ -70,5 +70,17 @@ namespace WinLock.Properties {
                 this["Semitransparent"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LoadWallpaper {
+            get {
+                return ((bool)(this["LoadWallpaper"]));
+            }
+            set {
+                this["LoadWallpaper"] = value;
+            }
+        }
     }
 }

@@ -126,6 +126,9 @@
   <data name="ErrorAuthUnimplemented" xml:space="preserve">
     <value>Authentication has not been implemented yet.</value>
   </data>
+  <data name="UILoggingOntoText" xml:space="preserve">
+    <value>Logging on to {0}</value>
+  </data>
   <data name="UIText" xml:space="preserve">
     <value>Press Ctrl+L to unlock</value>
   </data>

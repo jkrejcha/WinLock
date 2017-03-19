@@ -2,56 +2,13 @@
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using static WinLock.NativeMethods;
 
 namespace WinLock.CredentialDialog
 {
 	class VistaAndHigherCredentialDialog : ICredentialDialog
 	{
-		[DllImport("ole32.dll")]
-		private static extern void CoTaskMemFree(IntPtr ptr);
-
-		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-		private struct CREDUI_INFO
-		{
-			public int cbSize;
-			public IntPtr hwndParent;
-			public string pszMessageText;
-			public string pszCaptionText;
-			public IntPtr hbmBanner;
-		}
-
-		[DllImport("credui.dll", CharSet = CharSet.Auto, SetLastError = true)]
-		private static extern bool CredUnPackAuthenticationBuffer(int dwFlags,
-																   IntPtr pAuthBuffer,
-																   uint cbAuthBuffer,
-																   StringBuilder pszUserName,
-																   ref int pcchMaxUserName,
-																   StringBuilder pszDomainName,
-																   ref int pcchMaxDomainame,
-																   StringBuilder pszPassword,
-																   ref int pcchMaxPassword);
-
-		[DllImport("credui.dll", CharSet = CharSet.Auto)]
-		private static extern int CredUIPromptForWindowsCredentials(ref CREDUI_INFO notUsedHere,
-																	 int authError,
-																	 ref uint authPackage,
-																	 IntPtr InAuthBuffer,
-																	 uint InAuthBufferSize,
-																	 out IntPtr refOutAuthBuffer,
-																	 out uint refOutAuthBufferSize,
-																	 ref bool fSave,
-																	 WindowsCredentialUIOptions flags);
-		
-		[DllImport("advapi32.dll", SetLastError = true, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		internal static extern bool LogonUser([MarshalAs(UnmanagedType.LPStr)] string pszUserName, [MarshalAs(UnmanagedType.LPStr)] string pszDomain,
-		[MarshalAs(UnmanagedType.LPStr)] string pszPassword, int dwLogonType, int dwLogonProvider, out IntPtr phToken);
-
-		[DllImport("kernel32.dll", SetLastError = true)]
-		private static extern void SetLastError(int errorCode);
-
-
-		private static LockScreenError GetCredentialsVistaAndUp(string captionText, string displayedMessage, int errorCode = 0)
+		private static int ShowCredentialDialog(string captionText, string displayedMessage, int errorCode = 0)
 		{
 			int maxUsername = 104; // maximum username in Windows
 			int maxPassword = 127; // as of Windows 7
@@ -98,40 +55,22 @@ namespace WinLock.CredentialDialog
 						Password = passwordBuf.ToString(),
 						Domain = domain
 					};
-					IntPtr unused = IntPtr.Zero;
-					return LogonUser(credential.UserName, credential.Domain, credential.Password, 0x03, 0x00, out unused) ? LockScreenError.None : LockScreenError.AuthenticationError;
+					return Program.TryLogon(credential.UserName, credential.Password, credential.Domain);
 				}
-				else { return LockScreenError.AuthenticationError; }
+				else { return result; }
 			}
-			return LockScreenError.UserCancelled;
+			return Error.Cancelled;
 		}
 
 		public bool VerifyCredentials(String dialogTitle, String dialogText)
 		{
-			LockScreenError lastError = LockScreenError.AuthenticationError;
-			while (lastError == LockScreenError.AuthenticationError)
+			int lastError = 0x01;
+			while (lastError != Error.Success || lastError != Error.Cancelled)
 			{
-				lastError = GetCredentialsVistaAndUp(dialogTitle, dialogText, Marshal.GetLastWin32Error());
+				lastError = ShowCredentialDialog(dialogTitle, dialogText, Marshal.GetLastWin32Error());
 			}
-			if (lastError == LockScreenError.UserCancelled) SetLastError(0x00); // hacky way of resetting the error
-			return lastError == LockScreenError.None;
-		}
-
-		[Flags]
-		public enum WindowsCredentialUIOptions
-		{
-			/// <summary>
-			/// Generic credentials. Cannot be used with <see cref="SecurePrompt"/>.
-			/// </summary>
-			Generic = 0x1,
-			CheckBox = 0x2,
-			AuthPackageOnly = 0x10,
-			InCredOnly = 0x20,
-			EnumerateAdmins = 0x100,
-			EnumerateCurrentUser = 0x200,
-			SecurePrompt = 0x1000,
-			PrePrompting = 0x2000,
-			Pack32WoW = 0x10000000,
+			if (lastError == Error.Cancelled) SetLastError(Error.Success); // hacky way of resetting the error
+			return lastError == Error.Success;
 		}
 	}
 }

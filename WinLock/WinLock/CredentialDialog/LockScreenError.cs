@@ -4,12 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinLock.CredentialDialog
+namespace WinLock
 {
-	public enum LockScreenError
+	public static class Error
 	{
-		None = 0x00,
-		AuthenticationError = 0x01,
-		UserCancelled = 0x02,
+		/// <summary>
+		/// Indicates a successful operation.
+		/// </summary>
+		/// <remarks>
+		/// The text for this is a localized string similar to 
+		/// "The operation completed successfully."
+		/// </remarks>
+		public const int Success = 0x00;
+		/// <summary>
+		/// Indicates an operation cancelled by the user.
+		/// </summary>
+		/// <remarks>
+		/// The text for this is a localized string similar to 
+		/// "The operation was cancelled by the user."
+		/// </remarks>
+		public const int Cancelled = 0x4C7;
 	}
 }

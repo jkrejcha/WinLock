@@ -52,7 +52,7 @@ namespace WinLock
 				LoadWallpaper();
 			}
 			this.Icon = SystemIcons.Application;
-			this.TopMost = true;
+			this.TopMost = !Program.Debug;
 		}
 
 		[DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -77,15 +77,12 @@ namespace WinLock
 	}
 
 	private void LockScreenForm_KeyDown(object sender, KeyEventArgs e)
-		{
+	{
 			if (e.Control && e.KeyCode == Keys.L)
 			{
-				if (AttemptUnlock != null)
-				{
-					AttemptUnlock(sender, e);
-				}
-			}
-		}
+                AttemptUnlock?.Invoke(sender, e);
+            }
+	}
 
 		private void CreateControls()
 		{

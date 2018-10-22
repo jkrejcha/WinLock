@@ -10,9 +10,9 @@ namespace WinLock.CredentialDialog
 	{
 		private static int ShowCredentialDialog(string captionText, string displayedMessage, int errorCode = 0)
 		{
-			int maxUsername = 104; // maximum username in Windows
-			int maxPassword = 127; // as of Windows 7
-			int maxDomain = 255; // maximum FQDN
+			int maxUsername = 512 + 1; // maximum username in Windows
+			int maxPassword = 256; // as of Windows 7
+			int maxDomain = 256; // maximum FQDN
 			CREDUI_INFO credui = new CREDUI_INFO();
 			credui.hwndParent = (new System.Windows.Forms.Form { TopMost = true, StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen }).Handle;
 			//credui.hwndParent = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
@@ -37,9 +37,10 @@ namespace WinLock.CredentialDialog
 			StringBuilder usernameBuf = new StringBuilder(maxUsername);
 			StringBuilder passwordBuf = new StringBuilder(maxPassword);
 			StringBuilder domainBuf = new StringBuilder(maxDomain);
-
 			if (result == 0)
 			{
+                // I don't know why I can't trust outCredSize.
+                // Gonna blow it up by 100 and see if that works.
 				if (CredUnPackAuthenticationBuffer(0x01, outCredBuffer, outCredSize, usernameBuf, ref maxUsername,
 												   domainBuf, ref maxDomain, passwordBuf, ref maxPassword))
 				{
@@ -48,10 +49,16 @@ namespace WinLock.CredentialDialog
 
 					//clear the memory allocated by CredUIPromptForWindowsCredentials 
 					CoTaskMemFree(outCredBuffer);
-					String domain = usernameBuf.ToString().Substring(0, usernameBuf.ToString().IndexOf("\\"));
+                    String domain = String.Empty;
+                    String username = usernameBuf.ToString();
+                    if (domain.Contains(@"\"))
+                    {
+                        domain = username.Substring(0, usernameBuf.ToString().IndexOf(@"\"));
+                        username = username.Substring(username.IndexOf(@"\"));
+                    }
 					NetworkCredential credential = new NetworkCredential()
 					{
-						UserName = usernameBuf.ToString().Substring(usernameBuf.ToString().IndexOf("\\")),
+						UserName = username,
 						Password = passwordBuf.ToString(),
 						Domain = domain
 					};
@@ -65,7 +72,7 @@ namespace WinLock.CredentialDialog
 		public bool VerifyCredentials(String dialogTitle, String dialogText)
 		{
 			int lastError = 0x01;
-			while (lastError != Error.Success || lastError != Error.Cancelled)
+			while (lastError != Error.Success && lastError != Error.Cancelled)
 			{
 				lastError = ShowCredentialDialog(dialogTitle, dialogText, Marshal.GetLastWin32Error());
 			}

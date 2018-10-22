@@ -30,7 +30,7 @@ namespace WinLock
 				secThread = ProcessProtection.ProcessProtect.Start();
 			}
 			ForceCustomDialog = Debug && args.Length > 0 && args[0] == "-customdialog";
-			Taskbar.Hide();
+			if (!Debug) Taskbar.Hide();
 			LockScreen.ShowDialog();
 			Taskbar.Show();
 			if (secThread != null) secThread.Abort();

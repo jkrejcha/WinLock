@@ -34,7 +34,7 @@ namespace WinLock
 			LockScreen.ShowDialog();
 			Taskbar.Show();
 			if (secThread != null) secThread.Abort();
-        }
+		}
 
 		private static void LockScreen_AttemptUnlock(object sender, EventArgs e)
 		{

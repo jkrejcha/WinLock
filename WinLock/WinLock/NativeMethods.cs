@@ -13,22 +13,22 @@ namespace WinLock
 
 		[DllImport("kernel32.dll")]
 		public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle, IntPtr hSourceHandle, IntPtr hTargetProcessHandle,
-													out IntPtr lpTargetHandle, int dwDesiredAccess = 0x0, bool bInheritHandle = true,
-													int dwOptions = 0x2);
+												  out IntPtr lpTargetHandle, int dwDesiredAccess = 0x0, bool bInheritHandle = true,
+												  int dwOptions = 0x2);
 
 		[DllImport("ole32.dll")]
 		public static extern void CoTaskMemFree(IntPtr ptr);
 
 		[DllImport("credui.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		public static extern bool CredUnPackAuthenticationBuffer(int dwFlags,
-	                                                             IntPtr pAuthBuffer,
-	                                                             uint cbAuthBuffer,
-	                                                             StringBuilder pszUserName,
-	                                                             ref int pcchMaxUserName,
-	                                                             StringBuilder pszDomainName,
-	                                                             ref int pcchMaxDomainame,
-	                                                             StringBuilder pszPassword,
-	                                                             ref int pcchMaxPassword);
+		                                                         IntPtr pAuthBuffer,
+		                                                         uint cbAuthBuffer,
+		                                                         StringBuilder pszUserName,
+		                                                         ref int pcchMaxUserName,
+		                                                         StringBuilder pszDomainName,
+		                                                         ref int pcchMaxDomainame,
+		                                                         StringBuilder pszPassword,
+		                                                         ref int pcchMaxPassword);
 
 		[DllImport("credui.dll", CharSet = CharSet.Auto)]
 		public static extern int CredUIPromptForWindowsCredentials(ref CREDUI_INFO credUIOptions,

@@ -25,13 +25,13 @@ namespace WinLock.CredentialDialog
 			bool save = false;
 			int result = CredUIPromptForWindowsCredentials(ref credui,
 			                                               errorCode,
-														   ref authPackage,
-														   IntPtr.Zero,
-														   0,
-														   out outCredBuffer,
-														   out outCredSize,
-														   ref save,
-														   WindowsCredentialUIOptions.EnumerateCurrentUser |
+			                                               ref authPackage,
+			                                               IntPtr.Zero,
+			                                               0,
+			                                               out outCredBuffer,
+			                                               out outCredSize,
+			                                               ref save,
+			                                               WindowsCredentialUIOptions.EnumerateCurrentUser |
 			                                               WindowsCredentialUIOptions.EnumerateAdmins);
 
 			StringBuilder usernameBuf = new StringBuilder(maxUsername);
@@ -39,23 +39,23 @@ namespace WinLock.CredentialDialog
 			StringBuilder domainBuf = new StringBuilder(maxDomain);
 			if (result == 0)
 			{
-                // I don't know why I can't trust outCredSize.
-                // Gonna blow it up by 100 and see if that works.
+				// I don't know why I can't trust outCredSize.
+				// Gonna blow it up by 100 and see if that works.
 				if (CredUnPackAuthenticationBuffer(0x01, outCredBuffer, outCredSize, usernameBuf, ref maxUsername,
-												   domainBuf, ref maxDomain, passwordBuf, ref maxPassword))
+				                                   domainBuf, ref maxDomain, passwordBuf, ref maxPassword))
 				{
 					//TODO: ms documentation says we should call this but i can't get it to work
 					//SecureZeroMem(outCredBuffer, outCredSize);
 
 					//clear the memory allocated by CredUIPromptForWindowsCredentials 
 					CoTaskMemFree(outCredBuffer);
-                    String domain = String.Empty;
-                    String username = usernameBuf.ToString();
-                    if (domain.Contains(@"\"))
-                    {
-                        domain = username.Substring(0, usernameBuf.ToString().IndexOf(@"\"));
-                        username = username.Substring(username.IndexOf(@"\"));
-                    }
+					String domain = String.Empty;
+					String username = usernameBuf.ToString();
+					if (domain.Contains(@"\"))
+					{
+						domain = username.Substring(0, usernameBuf.ToString().IndexOf(@"\"));
+						username = username.Substring(username.IndexOf(@"\"));
+					}
 					NetworkCredential credential = new NetworkCredential()
 					{
 						UserName = username,

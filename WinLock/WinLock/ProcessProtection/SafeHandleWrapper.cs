@@ -14,9 +14,6 @@ namespace WinLock.ProcessProtection
 			SetHandle(existingHandle);
 		}
 
-		protected override bool ReleaseHandle()
-		{
-			return true;
-		}
+		protected override bool ReleaseHandle() => true;
 	}
 }

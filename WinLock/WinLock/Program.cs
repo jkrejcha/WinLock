@@ -7,9 +7,9 @@ namespace WinLock
 	static class Program
 	{
 #if DEBUG
-		public static bool Debug { get { return System.Diagnostics.Debugger.IsAttached; } }
+		public static bool Debug { get => System.Diagnostics.Debugger.IsAttached; }
 #else
-		public static bool Debug { get { return false; } }
+		public static bool Debug { get => false; }
 #endif
 		public static bool ForceCustomDialog { get; private set; }
 		internal static LockScreenForm LockScreen { get; private set; }
@@ -51,7 +51,8 @@ namespace WinLock
 		/// <list type="number">
 		/// <item>
 		/// <description>
-		/// If <see cref="ForceCustomDialog"/> is set, on NT 3, 3.5, or 4, or if not on Windows NT based operating system, <see cref="BasicCredentialDialog"/>
+		/// If <see cref="ForceCustomDialog"/> is set, on NT 3, 3.5, or 4, or 
+		/// if not on Windows NT based operating system, <see cref="BasicCredentialDialog"/>
 		/// </description>
 		/// </item>
 		/// <item>
@@ -135,8 +136,8 @@ namespace WinLock
 		/// for more information.</returns>
 		public static int TryLogon(String username, String password, String domain)
 		{
-			IntPtr unused = IntPtr.Zero;
-			NativeMethods.LogonUser(username, domain, password, (Int32)LogonType.Unlock, 0x00, out unused);
+			NativeMethods.LogonUser(username, domain, password, 
+			                        (Int32)LogonType.Unlock, 0x00, out IntPtr unused);
 			return System.Runtime.InteropServices.Marshal.GetLastWin32Error();
 		}
 	}

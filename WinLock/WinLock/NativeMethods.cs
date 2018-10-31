@@ -80,6 +80,60 @@ namespace WinLock
 		Pack32WoW = 0x10000000,
 	}
 
+	/// <summary>
+	/// References types of logons that may occur.
+	/// </summary>
+	public enum LogonType : int
+	{
+		/// <summary>
+		/// A user logged on to this computer.
+		/// </summary>
+		Interactive = 2,
+		/// <summary>
+		/// A user or computer logged on to this computer from the network.
+		/// </summary>
+		Network = 3,
+		/// <summary>
+		/// Batch logon type is used by batch servers, where processes may be
+		/// executing on behalf of a user without their direct intervention.
+		/// </summary>
+		Batch = 4,
+		/// <summary>
+		/// A service was started by the Service Control Manager.
+		/// </summary>
+		Service = 5,
+		/// <summary>
+		/// This workstation was unlocked.
+		/// </summary>
+		Unlock = 7,
+		/// <summary>
+		/// A user logged on to this computer from the network. The user's 
+		/// password was passed to the authentication package in its unhashed 
+		/// form. The built-in authentication packages all hash credentials 
+		/// before sending them across the network. The credentials do not 
+		/// traverse the network in plaintext (also called cleartext).
+		/// </summary>
+		NetworkCleartext = 8,
+		/// <summary>
+		/// A caller cloned its current token and specified new
+		/// credentials for outbound connections. The new logon session
+		/// has the same local identity, but uses different credentials
+		/// for other network connections.
+		/// </summary>
+		NewCredentials = 9,
+		/// <summary>
+		/// A user logged on to this computer remotely using Terminal 
+		/// Services or Remote Desktop.
+		/// </summary>
+		RemoteInteractive = 10,
+		/// <summary>
+		/// A user logged on to this computer with network credentials 
+		/// that were stored locally on the computer. The domain controller
+		/// was not contacted to verify the credentials.
+		/// </summary>
+		CachedInteractive = 11,
+	}
+
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
 	public struct CREDUI_INFO
 	{

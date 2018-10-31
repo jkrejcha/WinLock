@@ -91,27 +91,52 @@ namespace WinLock
 			}
 		}
 
+		/// <summary>
+		/// Parses a username from an entered string. Acceptable formats are
+		/// domain\username, username@domain, or no domain specified (assumes current domain).<br/>
+		/// If the domain is <code>.</code>, then the current machine name will be used.
+		/// </summary>
+		/// <param name="initialStr">The string to parse.</param>
+		/// <param name="username">A <see cref="String"/> containing the parsed username.</param>
+		/// <param name="domain">A <see cref="String"/> containing the parsed domain name.</param>
 		public static void ParseUsername(String initialStr, out string username, out string domain)
 		{
 			username = initialStr;
 			domain = null;
-			if (username.Contains("\\"))
+			if (username.Contains("\\")) // domain\username format
 			{
 				int indexOfSlash = username.IndexOf("\\");
 				domain = username.Substring(0, indexOfSlash);
 				username = username.Substring(indexOfSlash);
 			}
-			else
+			else if (username.Contains("@")) // username@domain format
+			{
+				int indexOfAt = username.IndexOf("@");
+				username = username.Substring(0, indexOfAt);
+				domain = username.Substring(indexOfAt);
+			}
+			else // no domain specified, use current
 			{
 				domain = Environment.UserDomainName;
 			}
-			if (domain == ".") domain = Environment.MachineName;
+			if (domain == ".") domain = Environment.MachineName; // use machine name if domain is '.'
 		}
 
+		/// <summary>
+		/// Attempts to logon using the LogonUser API, given a username, password,
+		/// and domain.
+		/// </summary>
+		/// <param name="username">Username to use</param>
+		/// <param name="password">Password to use</param>
+		/// <param name="domain">Domain to attempt to logon to</param>
+		/// <returns>A Win32 error code which determines the success of the logon
+		/// request. An error of 0 indicated success.<br/>
+		/// See <a href="https://docs.microsoft.com/en-us/windows/desktop/debug/system-error-codes">this listing</a>
+		/// for more information.</returns>
 		public static int TryLogon(String username, String password, String domain)
 		{
 			IntPtr unused = IntPtr.Zero;
-			NativeMethods.LogonUser(username, domain, password, 0x02, 0x00, out unused);
+			NativeMethods.LogonUser(username, domain, password, (Int32)LogonType.Unlock, 0x00, out unused);
 			return System.Runtime.InteropServices.Marshal.GetLastWin32Error();
 		}
 	}

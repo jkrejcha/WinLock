@@ -35,7 +35,7 @@ namespace WinLock
 			String unused = null;
 			String domain = null;
 			Program.ParseUsername(CBUsername.Text, out unused, out domain);
-			lblLoggingOnTo.Text = Properties.Resources.UILoggingOntoText.Replace("{0}", domain);
+			lblLoggingOnTo.Text = String.Format(Properties.Resources.UILoggingOntoText, domain);
 		}
 
 		private void btnOK_Click(object sender, EventArgs e)

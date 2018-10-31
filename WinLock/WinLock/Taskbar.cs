@@ -24,17 +24,19 @@ namespace WinLock
 		{
 			get
 			{
-				return FindWindow("Shell_TrayWnd", "");
+				const String TaskbarWindowName = "Shell_TrayWnd";
+				return FindWindow(TaskbarWindowName, String.Empty);
 			}
 		}
 
-		protected static int HandleOfStartButton
+		protected static int StartButtonHandle
 		{
 			get
 			{
-				int handleOfDesktop = GetDesktopWindow();
-				int handleOfStartButton = FindWindowEx(handleOfDesktop, 0, "button", 0);
-				return handleOfStartButton;
+				const String buttonClassName = "button";
+				int desktopHandle = GetDesktopWindow();
+				int startButtonHandle = FindWindowEx(desktopHandle, 0, buttonClassName, 0);
+				return startButtonHandle;
 			}
 		}
 
@@ -46,13 +48,13 @@ namespace WinLock
 		public static void Show()
 		{
 			ShowWindow(Handle, SW_SHOW);
-			ShowWindow(HandleOfStartButton, SW_SHOW);
+			ShowWindow(StartButtonHandle, SW_SHOW);
 		}
 
 		public static void Hide()
 		{
 			ShowWindow(Handle, SW_HIDE);
-			ShowWindow(HandleOfStartButton, SW_HIDE);
+			ShowWindow(StartButtonHandle, SW_HIDE);
 		}
 	}
 }

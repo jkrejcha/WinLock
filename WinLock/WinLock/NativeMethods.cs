@@ -13,8 +13,8 @@ namespace WinLock
 
 		[DllImport("kernel32.dll")]
 		public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle, IntPtr hSourceHandle, IntPtr hTargetProcessHandle,
-												  out IntPtr lpTargetHandle, int dwDesiredAccess = 0x0, bool bInheritHandle = true,
-												  int dwOptions = 0x2);
+                                    			  out IntPtr lpTargetHandle, int dwDesiredAccess = 0x0, bool bInheritHandle = true,
+                                    			  int dwOptions = 0x2);
 
 		[DllImport("ole32.dll")]
 		public static extern void CoTaskMemFree(IntPtr ptr);
@@ -44,11 +44,11 @@ namespace WinLock
 		[DllImport("advapi32.dll", SetLastError = true, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool LogonUser([MarshalAs(UnmanagedType.LPStr)] string pszUserName, 
-											[MarshalAs(UnmanagedType.LPStr)] string pszDomain,
-											[MarshalAs(UnmanagedType.LPStr)] string pszPassword, 
-											int dwLogonType, 
-											int dwLogonProvider, 
-											out IntPtr phToken);
+		                                    [MarshalAs(UnmanagedType.LPStr)] string pszDomain,
+                                    		[MarshalAs(UnmanagedType.LPStr)] string pszPassword,
+                                    		int dwLogonType,
+                                    		int dwLogonProvider,
+                                    		out IntPtr phToken);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern void SetLastError(int errorCode);

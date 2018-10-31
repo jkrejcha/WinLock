@@ -60,8 +60,17 @@ namespace WinLock
 		CheckBox = 0x2,
 		AuthPackageOnly = 0x10,
 		InCredOnly = 0x20,
+		/// <summary>
+		/// Enumerate admins.
+		/// </summary>
 		EnumerateAdmins = 0x100,
+		/// <summary>
+		/// Enumerate the current user.
+		/// </summary>
 		EnumerateCurrentUser = 0x200,
+		/// <summary>
+		/// Prompt on the secure desktop.
+		/// </summary>
 		SecurePrompt = 0x1000,
 		PrePrompting = 0x2000,
 		Pack32WoW = 0x10000000,

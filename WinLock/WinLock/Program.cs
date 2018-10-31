@@ -38,26 +38,57 @@ namespace WinLock
 
 		private static void LockScreen_AttemptUnlock(object sender, EventArgs e)
 		{
-			ICredentialDialog dialog;
-			OperatingSystem version = Environment.OSVersion;
-			int majorOSVersion = version.Version.Major;
-			if (ForceCustomDialog || majorOSVersion <= 5) // Before Windows Vista
+			ICredentialDialog dialog = GetCredentialDialog();
+			if (!dialog.VerifyCredentials(Properties.Resources.DialogTitle, Properties.Resources.DialogText)) return;
+			LockScreen.Unlock();
+		}
+
+		/// <summary>
+		/// Gets the correct credential dialog to use based on the OS version and the
+		/// version of Windows.
+		/// </summary>
+		/// <returns>
+		/// <list type="number">
+		/// <item>
+		/// <description>
+		/// If <see cref="ForceCustomDialog"/> is set, on NT 3, 3.5, or 4, or if not on Windows NT based operating system, <see cref="BasicCredentialDialog"/>
+		/// </description>
+		/// </item>
+		/// <item>
+		/// <description>
+		/// If on Windows XP, <see cref="XPCredentialDialog"/>.
+		/// </description>
+		/// </item>
+		/// <item>
+		/// <description>
+		/// If on Windows Vista or above, <see cref="VistaAndHigherCredentialDialog"/>.
+		/// </description>
+		/// </item>
+		/// </list>
+		/// </returns>
+		private static ICredentialDialog GetCredentialDialog()
+		{
+			OperatingSystem osVersion = Environment.OSVersion;
+			if (ForceCustomDialog || osVersion.Platform != PlatformID.Win32NT) return new BasicCredentialDialog();
+			Version versionInfo = osVersion.Version;
+			const int PreVistaMajor = 5;
+			const int XPMinor = 1;
+			if (versionInfo.Major <= PreVistaMajor)
 			{
-				if (ForceCustomDialog || version.Version.Minor < 1)
+				if (versionInfo.Major == PreVistaMajor &&
+					versionInfo.Minor >= XPMinor) // Windows XP
 				{
-					dialog = new BasicCredentialDialog();
+					return new XPCredentialDialog();
 				}
-				else
+				else // Windows NT 3, 3.5, 4
 				{
-					dialog = new XPCredentialDialog();
+					return new BasicCredentialDialog();
 				}
 			}
 			else // Windows Vista+
 			{
-				dialog = new VistaAndHigherCredentialDialog();
+				return new VistaAndHigherCredentialDialog();
 			}
-			if (!dialog.VerifyCredentials(Properties.Resources.DialogTitle, Properties.Resources.DialogText)) return;
-			LockScreen.Unlock();
 		}
 
 		public static void ParseUsername(String initialStr, out string username, out string domain)

@@ -10,14 +10,16 @@ namespace WinLock.CredentialDialog
 	{
 		private static int ShowCredentialDialog(string captionText, string displayedMessage, int errorCode = 0)
 		{
-			int maxUsername = 512 + 1; // maximum username in Windows
-			int maxPassword = 256; // as of Windows 7
-			int maxDomain = 256; // maximum FQDN
-			CREDUI_INFO credui = new CREDUI_INFO();
-			credui.hwndParent = (new System.Windows.Forms.Form { TopMost = true, StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen }).Handle;
-			//credui.hwndParent = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
-			credui.pszCaptionText = captionText;
-			credui.pszMessageText = displayedMessage;
+			int maxUsername = 512 + 1;
+			int maxPassword = 256;
+			int maxDomain = 256;
+
+			CREDUI_INFO credui = new CREDUI_INFO
+			{
+				hwndParent = (new System.Windows.Forms.Form { TopMost = true, StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen }).Handle,
+				pszCaptionText = captionText,
+				pszMessageText = displayedMessage,
+			};
 			credui.cbSize = Marshal.SizeOf(credui);
 			uint authPackage = 0;
 			IntPtr outCredBuffer = new IntPtr();
@@ -39,8 +41,6 @@ namespace WinLock.CredentialDialog
 			StringBuilder domainBuf = new StringBuilder(maxDomain);
 			if (result == 0)
 			{
-				// I don't know why I can't trust outCredSize.
-				// Gonna blow it up by 100 and see if that works.
 				if (CredUnPackAuthenticationBuffer(0x01, outCredBuffer, outCredSize, usernameBuf, ref maxUsername,
 				                                   domainBuf, ref maxDomain, passwordBuf, ref maxPassword))
 				{

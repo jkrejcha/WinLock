@@ -43,8 +43,12 @@ namespace WinLock
 
 		[DllImport("advapi32.dll", SetLastError = true, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool LogonUser([MarshalAs(UnmanagedType.LPStr)] string pszUserName, [MarshalAs(UnmanagedType.LPStr)] string pszDomain,
-		[MarshalAs(UnmanagedType.LPStr)] string pszPassword, int dwLogonType, int dwLogonProvider, out IntPtr phToken);
+		public static extern bool LogonUser([MarshalAs(UnmanagedType.LPStr)] string pszUserName, 
+											[MarshalAs(UnmanagedType.LPStr)] string pszDomain,
+											[MarshalAs(UnmanagedType.LPStr)] string pszPassword, 
+											int dwLogonType, 
+											int dwLogonProvider, 
+											out IntPtr phToken);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern void SetLastError(int errorCode);

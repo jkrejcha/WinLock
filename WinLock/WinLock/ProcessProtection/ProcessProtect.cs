@@ -11,11 +11,12 @@ namespace WinLock.ProcessProtection
 	{
 		public static IdentityReference Everyone { get { return GetIdentityReference(WellKnownSidType.WorldSid); } }
 
-		public static IdentityReference GetIdentityReference(WellKnownSidType SidType)
+		public static IdentityReference GetIdentityReference(WellKnownSidType sidType)
 		{
-			SecurityIdentifier sid = new SecurityIdentifier(SidType, null);
+			SecurityIdentifier sid = new SecurityIdentifier(sidType, null);
 			return ((NTAccount)sid.Translate(typeof(NTAccount)));
 		}
+
 		public static Thread Start()
 		{
 			Thread t = new Thread(Run);
@@ -28,9 +29,8 @@ namespace WinLock.ProcessProtection
 			try
 			{
 				IntPtr currentProcess = GetCurrentProcess();
-				IntPtr handle;
-				bool success = DuplicateHandle(currentProcess, currentProcess, currentProcess, out handle);
-				while (true)
+				bool success = DuplicateHandle(currentProcess, currentProcess, currentProcess, out IntPtr handle);
+				while (Thread.CurrentThread.ThreadState == ThreadState.Running)
 				{
 					if (success)
 					{
@@ -47,15 +47,15 @@ namespace WinLock.ProcessProtection
 			catch (ThreadAbortException) { }
 		}
 
-		private static void SetProcessPermissions(IntPtr rawHandle, bool AllowTermination)
+		private static void SetProcessPermissions(IntPtr rawHandle, bool allowTermination)
 		{
 			ProcessAccessRights noAccess = ProcessAccessRights.Terminate | ProcessAccessRights.SuspendResume;
-			SafeHandle handle = new SafeHandlerWrapper(rawHandle);
+			SafeHandle handle = new SafeHandleWrapper(rawHandle);
 			ProcessSecurity sec = new ProcessSecurity(handle);
 			ProcessAccessRule noTerminateSuspend = new ProcessAccessRule(Everyone, noAccess,
 																		 false, InheritanceFlags.None,
 																		 PropagationFlags.NoPropagateInherit,
-																		 (AccessControlType)Convert.ToInt32(!AllowTermination));
+																		 (AccessControlType)Convert.ToInt32(!allowTermination));
 			sec.AddAccessRule(noTerminateSuspend);
 			sec.SaveChanges(handle);
 		}

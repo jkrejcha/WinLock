@@ -7,9 +7,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace WinLock.ProcessProtection
 {
-	class SafeHandlerWrapper : SafeHandleZeroOrMinusOneIsInvalid
+	class SafeHandleWrapper : SafeHandleZeroOrMinusOneIsInvalid
 	{
-		public SafeHandlerWrapper(IntPtr existingHandle) : base(true)
+		public SafeHandleWrapper(IntPtr existingHandle) : base(true)
 		{
 			SetHandle(existingHandle);
 		}

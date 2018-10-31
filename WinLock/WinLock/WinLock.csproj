@@ -74,7 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="ProcessProtection\ProcessSecurity.cs" />
-    <Compile Include="ProcessProtection\SafeHandlerWrapper.cs" />
+    <Compile Include="ProcessProtection\SafeHandleWrapper.cs" />
     <Compile Include="Taskbar.cs" />
     <EmbeddedResource Include="FormCredentialDialog.resx">
       <DependentUpon>FormCredentialDialog.cs</DependentUpon>
